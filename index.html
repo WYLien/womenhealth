@@ -1,0 +1,766 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>護墊＝乾淨？破解女性衛生迷思</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            overflow-x: hidden;
+            background-color: #f9f5ff;
+            color: #4b5563;
+        }
+        .slide {
+            height: 100vh;
+            width: 100vw;
+            display: none;
+            scroll-snap-align: start;
+        }
+        .active {
+            display: flex;
+        }
+        .progress-bar {
+            height: 4px;
+            background-color: rgba(147, 51, 234, 0.2);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        .progress {
+            height: 100%;
+            background-color: #9333ea;
+            transition: width 0.3s ease;
+        }
+        .card {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0.75rem;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .quiz-option {
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+        .quiz-option:hover {
+            transform: translateY(-2px);
+        }
+        .quiz-option.selected {
+            border-color: #9333ea;
+            background-color: rgba(147, 51, 234, 0.1);
+        }
+        .quiz-option.correct {
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        .quiz-option.incorrect {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        .qr-code {
+            background-color: white;
+            padding: 16px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #f3e8ff 0%, #fae8ff 100%);
+        }
+        .card-design-1 {
+            background: linear-gradient(135deg, #fbcfe8 0%, #ddd6fe 100%);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .card-design-2 {
+            background: linear-gradient(135deg, #ddd6fe 0%, #a5b4fc 100%);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .card-design-3 {
+            background: linear-gradient(135deg, #a5b4fc 0%, #93c5fd 100%);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .card-design-5 {
+            background: linear-gradient(135deg, #bfdbfe 0%, #dbeafe 100%);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .answer-card {
+            background: linear-gradient(135deg, #d8b4fe 0%, #c4b5fd 100%);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .video-placeholder {
+            background-color: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .cards-container {
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .cards-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .cards-container::-webkit-scrollbar-track {
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 10px;
+        }
+        .cards-container::-webkit-scrollbar-thumb {
+            background: rgba(147, 51, 234, 0.3);
+            border-radius: 10px;
+        }
+        .cards-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(147, 51, 234, 0.5);
+        }
+        .answer-explanation {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        .myth-card {
+            width: 160px;
+            height: 160px;
+            margin: 10px;
+        }
+        .myths-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        .myths-row::-webkit-scrollbar {
+            height: 6px;
+        }
+        .myths-row::-webkit-scrollbar-track {
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 10px;
+        }
+        .myths-row::-webkit-scrollbar-thumb {
+            background: rgba(147, 51, 234, 0.3);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-gray-700">
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- Slide 1: Cover Page -->
+    <div class="slide active flex flex-col items-center justify-center p-8" id="slide1">
+        <div class="max-w-4xl mx-auto w-full">
+            <div class="flex flex-col items-center">
+                <h1 class="text-4xl font-bold mb-4 text-purple-800">護墊＝乾淨？</h1>
+                <h2 class="text-2xl font-bold mb-8 text-purple-700">破解女性衛生迷思</h2>
+                
+                <p class="text-lg text-center mb-8">
+                    讓我們一起研究女性衛生用品的真相，破解常見的迷思
+                </p>
+                
+                <div class="flex flex-wrap justify-center gap-2">
+                    <span class="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">#女性健康</span>
+                    <span class="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">#衛生用品</span>
+                    <span class="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">#健康知識</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: What is a panty liner? -->
+    <div class="slide flex flex-col items-center justify-center p-8 gradient-bg" id="slide2">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-10 text-center text-purple-800">「護墊」是什麼？</h2>
+            <div class="bg-white/70 backdrop-blur-md rounded-xl p-8 shadow-lg">
+                <div class="flex flex-col md:flex-row gap-8 items-center">
+                    <div class="md:w-1/3">
+                        <svg class="w-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#fbcfe8" d="M100,20 C130,20 160,40 160,100 C160,160 130,180 100,180 C70,180 40,160 40,100 C40,40 70,20 100,20 Z" />
+                            <path fill="#fce7f3" d="M100,40 C120,40 140,55 140,100 C140,145 120,160 100,160 C80,160 60,145 60,100 C60,55 80,40 100,40 Z" />
+                            <path fill="#FFFFFF" d="M100,60 C110,60 120,70 120,100 C120,130 110,140 100,140 C90,140 80,130 80,100 C80,70 90,60 100,60 Z" />
+                        </svg>
+                    </div>
+                    <div class="md:w-2/3 text-lg">
+                        <p class="mb-4">護墊是貼在內褲上的薄型吸收墊，用來吸收日常少量分泌物，保持乾爽。它比衛生棉薄小，主要適合非生理期使用。</p>
+                        <p>相比之下，衛生棉吸收量較大，主要用於月經期間。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Quiz -->
+    <div class="slide flex flex-col items-center justify-center p-6 gradient-bg" id="slide3">
+        <div class="max-w-4xl mx-auto w-full">
+            <h2 class="text-3xl font-bold mb-4 text-center text-purple-800">你會怎麼選？</h2>
+            <p class="text-center mb-3">請選擇你認為正確的答案</p>
+            
+            <div class="bg-white/70 backdrop-blur-md rounded-xl p-5 shadow-lg mb-4">
+                <div id="quiz-container">
+                    <div class="quiz-question active" id="question1">
+                        <h3 class="text-xl font-medium mb-4 text-purple-800">1. 陰道為何分泌無色或白色分泌物？</h3>
+                        
+                        <div class="quiz-option border border-purple-200 rounded-lg p-3 cursor-pointer mb-3" data-option="a" data-correct="false">
+                            A. 清潔不夠徹底，應該用肥皂徹底清洗
+                        </div>
+                        
+                        <div class="quiz-option border border-purple-200 rounded-lg p-3 cursor-pointer mb-3" data-option="b" data-correct="false">
+                            B. 這是正常的生理現象，建議穿護墊吸收分泌物
+                        </div>
+                        
+                        <div class="quiz-option border border-purple-200 rounded-lg p-3 cursor-pointer mb-3" data-option="c" data-correct="true">
+                            C. 這是正常的生理現象，建議多帶幾條內褲勤換保持乾爽
+                        </div>
+                        
+                        <div class="answer-explanation mt-4 p-3 rounded-lg hidden" id="answer1">
+                            <div class="flex items-center">
+                                <div class="bg-green-200 text-green-800 rounded-full px-3 py-1 mr-3">正確答案: C</div>
+                            </div>
+                            <p class="mt-2">說明：陰道分泌物是女性正常的生理現象，內褲溼黏時，勤換內褲能保持乾爽，減少細菌滋生的風險。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-question hidden" id="question2">
+                        <h3 class="text-xl font-medium mb-4 text-purple-800">2. 陰道分泌物的主要功能是什麼？</h3>
+                        
+                        <div class="quiz-option border border-purple-200 rounded-lg p-3 cursor-pointer mb-3" data-option="a" data-correct="true">
+                            A. 保持陰道濕潤與酸鹼平衡，有助防止感染
+                        </div>
+                        
+                        <div class="quiz-option border border-purple-200 rounded-lg p-3 cursor-pointer mb-3" data-option="b" data-correct="false">
+                            B. 代表身體有疾病，應該立即就醫
+                        </div>
+                        
+                        <div class="quiz-option border border-purple-200 rounded-lg p-3 cursor-pointer mb-3" data-option="c" data-correct="false">
+                            C. 沒有特別功能，只是身體多餘的液體
+                        </div>
+                        
+                        <div class="answer-explanation mt-4 p-3 rounded-lg hidden" id="answer2">
+                            <div class="flex items-center">
+                                <div class="bg-green-200 text-green-800 rounded-full px-3 py-1 mr-3">正確答案: A</div>
+                            </div>
+                            <p class="mt-2">說明：陰道分泌物幫助維持陰道內的酸鹼平衡和濕潤環境，有效防止有害細菌和真菌感染，維護陰道健康。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-question hidden" id="question3">
+                        <h3 class="text-xl font-medium mb-4 text-purple-800">3. 哪種材質的內褲較有助於保持陰部乾爽？</h3>
+                        
+                        <div class="quiz-option border border-purple-200 rounded-lg p-3 cursor-pointer mb-3" data-option="a" data-correct="true">
+                            A. 棉質內褲
+                        </div>
+                        
+                        <div class="quiz-option border border-purple-200 rounded-lg p-3 cursor-pointer mb-3" data-option="b" data-correct="false">
+                            B. 尼龍或合成纖維內褲
+                        </div>
+                        
+                        <div class="quiz-option border border-purple-200 rounded-lg p-3 cursor-pointer mb-3" data-option="c" data-correct="false">
+                            C. 蕾絲或網狀材質內褲
+                        </div>
+                        
+                        <div class="answer-explanation mt-4 p-3 rounded-lg hidden" id="answer3">
+                            <div class="flex items-center">
+                                <div class="bg-green-200 text-green-800 rounded-full px-3 py-1 mr-3">正確答案: A</div>
+                            </div>
+                            <p class="mt-2">說明：棉質內褲透氣性好，能吸收濕氣，保持陰部乾爽，降低悶熱和感染的機會。尼龍等合成纖維則較不透氣，容易悶熱。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-5 flex justify-between">
+                    <button id="prev-question" class="px-4 py-2 bg-purple-200 text-purple-800 rounded-lg hover:bg-purple-300 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>上一題</button>
+                    <div id="quiz-stats" class="flex items-center justify-center">
+                        <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                            <span id="current-participants">0</span> 人已參與
+                        </span>
+                    </div>
+                    <button id="next-question" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">下一題</button>
+                </div>
+            </div>
+            
+            <div class="bg-white/70 backdrop-blur-md rounded-xl p-3 shadow-lg">
+                <h3 id="poll-title" class="text-lg font-medium mb-2 text-purple-800">第1題即時投票結果</h3>
+                <div id="results-container">
+                    <div class="space-y-2">
+                        <div class="relative pt-1">
+                            <div class="flex mb-1 items-center justify-between">
+                                <div class="text-sm">選項 A</div>
+                                <div class="text-right">
+                                    <span id="option-a-percent" class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full bg-purple-200 text-purple-800">
+                                        0%
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="overflow-hidden h-2 mb-2 text-xs flex rounded bg-purple-100">
+                                <div id="option-a-bar" style="width:0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-300"></div>
+                            </div>
+                        </div>
+                        <div class="relative pt-1">
+                            <div class="flex mb-1 items-center justify-between">
+                                <div class="text-sm">選項 B</div>
+                                <div class="text-right">
+                                    <span id="option-b-percent" class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full bg-purple-200 text-purple-800">
+                                        0%
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="overflow-hidden h-2 mb-2 text-xs flex rounded bg-purple-100">
+                                <div id="option-b-bar" style="width:0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-300"></div>
+                            </div>
+                        </div>
+                        <div class="relative pt-1">
+                            <div class="flex mb-1 items-center justify-between">
+                                <div class="text-sm">選項 C</div>
+                                <div class="text-right">
+                                    <span id="option-c-percent" class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full bg-purple-200 text-purple-800">
+                                        0%
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="overflow-hidden h-2 mb-2 text-xs flex rounded bg-purple-100">
+                                <div id="option-c-bar" style="width:0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-300"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Interactive Cards (All myths in one scrollable page) -->
+    <div class="slide flex flex-col items-center justify-center p-4 gradient-bg" id="slide4">
+        <div class="max-w-5xl mx-auto w-full">
+            <h2 class="text-3xl font-bold mb-2 text-center text-purple-800">你聽過這些說法嗎？</h2>
+            <p class="text-center mb-4 text-xs">點擊卡片破解迷思</p>
+            
+            <div class="cards-container rounded-xl bg-white/30 backdrop-blur-sm">
+                <div class="myths-row">
+                    <div class="card myth-card">
+                        <div class="card-inner h-full">
+                            <div class="card-front card-design-1 text-purple-900 p-3 flex flex-col items-center justify-center">
+                                <div class="mb-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-bold mb-1 text-center">迷思 1</h3>
+                                <p class="text-center text-sm">護墊可以預防陰道感染，所以每天都應該貼著用。</p>
+                            </div>
+                            <div class="card-back answer-card text-purple-900 p-3 flex flex-col items-center justify-center">
+                                <div class="mb-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-bold mb-1 text-center">正解</h3>
+                                <p class="text-center text-xs">護墊悶熱不透氣，長時間使用反而容易讓細菌滋生，增加感染風險。建議只在必要時短時間使用，並勤換護墊。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card myth-card">
+                        <div class="card-inner h-full">
+                            <div class="card-front card-design-2 text-purple-900 p-3 flex flex-col items-center justify-center">
+                                <div class="mb-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-bold mb-1 text-center">迷思 2</h3>
+                                <p class="text-center text-sm">陰道分泌物是髒東西，代表身體不乾淨。</p>
+                            </div>
+                            <div class="card-back answer-card text-purple-900 p-3 flex flex-col items-center justify-center">
+                                <div class="mb-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-bold mb-1 text-center">正解</h3>
+                                <p class="text-center text-xs">陰道分泌物是正常生理現象，幫助保持陰道濕潤和酸鹼平衡，對陰道健康非常重要。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card myth-card">
+                        <div class="card-inner h-full">
+                            <div class="card-front card-design-3 text-purple-900 p-3 flex flex-col items-center justify-center">
+                                <div class="mb-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-bold mb-1 text-center">迷思 3</h3>
+                                <p class="text-center text-sm">用肥皂洗陰部越乾淨越好，能避免感染。</p>
+                            </div>
+                            <div class="card-back answer-card text-purple-900 p-3 flex flex-col items-center justify-center">
+                                <div class="mb-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-bold mb-1 text-center">正解</h3>
+                                <p class="text-center text-xs">肥皂會破壞陰道自然的酸鹼值和菌叢平衡，容易造成刺激和感染。陰部清潔以清水為主即可。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card myth-card">
+                        <div class="card-inner h-full">
+                            <div class="card-front card-design-5 text-purple-900 p-3 flex flex-col items-center justify-center">
+                                <div class="mb-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-bold mb-1 text-center">迷思 4</h3>
+                                <p class="text-center text-sm">分泌物多表示有病，要趕快看醫生。</p>
+                            </div>
+                            <div class="card-back answer-card text-purple-900 p-3 flex flex-col items-center justify-center">
+                                <div class="mb-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-bold mb-1 text-center">正解</h3>
+                                <p class="text-center text-xs">分泌物量會因生理週期變化而不同，不一定代表疾病。若伴隨異味、癢痛等症狀，才建議就醫。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Why Underwear is Better than Panty Liners -->
+    <div class="slide flex flex-col items-center justify-center p-8 gradient-bg" id="slide5">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-10 text-center text-purple-800">為何「內褲」比「護墊」好？</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white/70 backdrop-blur-md rounded-xl p-6 shadow-lg">
+                    <h3 class="text-xl font-medium mb-4 text-center text-purple-700">棉質內褲的優點</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>透氣性佳</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>濕氣能自然散發</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>減少細菌滋生機會</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>棉質纖維能吸收分泌物</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white/70 backdrop-blur-md rounded-xl p-6 shadow-lg">
+                    <h3 class="text-xl font-medium mb-4 text-center text-purple-700">護墊的缺點</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span>多由塑膠和合成材料製成</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span>常含香料等化學物質</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span>材質不透氣</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span>長時間使用容易造成陰部悶熱潮濕</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-8 bg-white/70 backdrop-blur-md rounded-xl p-6 shadow-lg">
+                <p class="text-lg">勤換乾淨的棉質內褲，比長時間使用護墊更能保護陰道健康。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Conclusion -->
+    <div class="slide flex flex-col items-center justify-center p-8 gradient-bg" id="slide6">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-8 text-center text-purple-800">護墊不是萬能，換內褲才是關鍵</h2>
+            
+            <div class="bg-white/70 backdrop-blur-md rounded-xl p-8 shadow-lg">
+                <div class="flex flex-col items-center">
+                    <div class="video-placeholder" style="width: 100%; max-width: 240px; height: 420px; margin: 0 auto;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        <p class="text-gray-500">在此處嵌入短影音</p>
+                        <p class="text-gray-400 text-xs mt-2">9:16 直式短影音</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let currentSlide = 1;
+        const progressBar = document.getElementById('progress');
+        
+        function updateProgress() {
+            const progress = (currentSlide - 1) / (totalSlides - 1) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        
+        function goToSlide(slideNumber) {
+            if (slideNumber < 1 || slideNumber > totalSlides) return;
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            document.getElementById(`slide${slideNumber}`).classList.add('active');
+            currentSlide = slideNumber;
+            updateProgress();
+        }
+        
+        function nextSlide() {
+            goToSlide(currentSlide + 1);
+        }
+        
+        function prevSlide() {
+            goToSlide(currentSlide - 1);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+        
+        // Swipe navigation for touch devices
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchEndX < touchStartX - swipeThreshold) {
+                nextSlide();
+            } else if (touchEndX > touchStartX + swipeThreshold) {
+                prevSlide();
+            }
+        }
+        
+        // Quiz functionality
+        const quizContainer = document.getElementById('quiz-container');
+        const questions = document.querySelectorAll('.quiz-question');
+        const prevButton = document.getElementById('prev-question');
+        const nextButton = document.getElementById('next-question');
+        const pollTitle = document.getElementById('poll-title');
+        let currentQuestion = 1;
+        const totalQuestions = questions.length;
+        
+        // Simulated quiz data
+        const quizData = {
+            questions: [
+                { a: 0, b: 0, c: 0, participants: 0 },
+                { a: 0, b: 0, c: 0, participants: 0 },
+                { a: 0, b: 0, c: 0, participants: 0 }
+            ],
+            // Track which questions have been answered by the current user
+            answered: [false, false, false]
+        };
+        
+        function showQuestion(questionNumber) {
+            questions.forEach(question => question.classList.add('hidden'));
+            document.getElementById(`question${questionNumber}`).classList.remove('hidden');
+            
+            prevButton.disabled = questionNumber === 1;
+            nextButton.textContent = questionNumber === totalQuestions ? '完成' : '下一題';
+            
+            // Update poll title to show current question number
+            pollTitle.textContent = `第${questionNumber}題即時投票結果`;
+            
+            // Update results display for current question
+            updateResultsDisplay(questionNumber - 1);
+        }
+        
+        function updateResultsDisplay(questionIndex) {
+            const question = quizData.questions[questionIndex];
+            const total = question.a + question.b + question.c;
+            
+            // Calculate percentages
+            const aPercent = total > 0 ? Math.round((question.a / total) * 100) : 0;
+            const bPercent = total > 0 ? Math.round((question.b / total) * 100) : 0;
+            const cPercent = total > 0 ? Math.round((question.c / total) * 100) : 0;
+            
+            // Update the display
+            document.getElementById('option-a-percent').textContent = `${aPercent}%`;
+            document.getElementById('option-b-percent').textContent = `${bPercent}%`;
+            document.getElementById('option-c-percent').textContent = `${cPercent}%`;
+            
+            document.getElementById('option-a-bar').style.width = `${aPercent}%`;
+            document.getElementById('option-b-bar').style.width = `${bPercent}%`;
+            document.getElementById('option-c-bar').style.width = `${cPercent}%`;
+            
+            document.getElementById('current-participants').textContent = question.participants;
+        }
+        
+        prevButton.addEventListener('click', () => {
+            if (currentQuestion > 1) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        });
+        
+        nextButton.addEventListener('click', () => {
+            if (currentQuestion < totalQuestions) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            } else {
+                // Quiz completed, go to next slide
+                goToSlide(4);
+            }
+        });
+        
+        // Option selection
+        document.querySelectorAll('.quiz-option').forEach(option => {
+            option.addEventListener('click', () => {
+                // Get the question and option
+                const questionEl = option.closest('.quiz-question');
+                const questionId = questionEl.id.replace('question', '') - 1;
+                const optionLetter = option.dataset.option;
+                const isCorrect = option.dataset.correct === 'true';
+                
+                // Check if this question has already been answered
+                if (quizData.answered[questionId]) {
+                    return; // Don't allow changing the answer
+                }
+                
+                // Mark this question as answered
+                quizData.answered[questionId] = true;
+                
+                // Remove selected class from all options in the same question
+                questionEl.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.classList.remove('selected', 'correct', 'incorrect');
+                });
+                
+                // Add selected class to clicked option
+                option.classList.add('selected');
+                
+                // Increment participants count for this question only
+                quizData.questions[questionId].participants++;
+                
+                // Increment the vote for the selected option
+                quizData.questions[questionId][optionLetter]++;
+                
+                // Update the results display
+                updateResultsDisplay(questionId);
+                
+                // Show the answer after a short delay
+                setTimeout(() => {
+                    // Mark correct/incorrect
+                    if (isCorrect) {
+                        option.classList.add('correct');
+                    } else {
+                        option.classList.add('incorrect');
+                        // Find and highlight the correct answer
+                        questionEl.querySelectorAll('.quiz-option').forEach(opt => {
+                            if (opt.dataset.correct === 'true') {
+                                opt.classList.add('correct');
+                            }
+                        });
+                    }
+                    
+                    // Show explanation
+                    document.getElementById(`answer${questionId + 1}`).classList.remove('hidden');
+                    document.getElementById(`answer${questionId + 1}`).classList.add('answer-card');
+                }, 500);
+            });
+        });
+        
+        // Flip cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('flipped');
+            });
+        });
+        
+        // Initialize
+        updateProgress();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9423156ba4b449f7',t:'MTc0NzY1MjM1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
